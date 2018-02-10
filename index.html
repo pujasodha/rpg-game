@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Luckiest+Guy" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <title>RPG Game</title>
+</head>
+
+<body>
+    <h1>Choose Your Hero and Battle!</h1>
+
+    <div class="container">
+        <div id="characters" class="row" style="position:absolute; bottom: 30px">
+        </div>
+        <div id="gameplay" class="row">
+            <div id="myHero" class="col-md-4" style="position: absolute; top: 30%; left: 27%; color: rgb(231, 231, 168); font-family: 'Luckiest Guy';"></div>
+            <div id="myBattle" "col-md-4" style="position: absolute; top: 30%; left: 40%; color: #B47271; font-family: 'Raleway'; background-color: #C2DAEB"></div>
+            <div id="myEnemy" class="col-md-4" style="position: absolute; top: 30%; left: 60%; color: rgb(231, 231, 168); font-family: 'Luckiest Guy';"></div>
+            <button id="attack" class="btn btn-secondary" style="position: absolute; top: 20%; left: 47%; background-color: #B47271; color: black">ATTACK</button>
+        </div>
+
+    </div>
+    <script src="http://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <script>
+        $(document).ready(function () {
+            //declare variables
+            var chosenHero
+            var chosenEnemy
+            var isHeroAlive
+            var isEnemyAlive
+
+            //audio clips 
+            let tie = new Audio("./sounds/tie.mp3")
+
+
+            //start game
+            function initgame() {
+                // since at game start we dont have a hero chosen or enemy chosen, we set them to false
+                isHeroChosen = false
+                isEnemyChosen = false
+                //generate characters 
+                for (var i = 0; i < charArray.length; i++) {
+                    var num = Math.floor(12 / charArray.length)
+                    var charThing = $("<div class ='myChar col-md-" + num + "' value='" + i + "'><img src ='" + charArray[i].image + "'style='width:150px;height:150px;'/></div>")
+                    $("#characters").append(charThing)
+                }
+            }
+            //choose a hero
+
+            $(document).on("click", ".myChar", function () {
+                console.log($(this).attr("value"))
+                if (isHeroChosen === false) {
+                    chosenHero = charArray[$(this).attr("value")]
+                    console.log(chosenHero)
+                    $(this).addClass("fade")
+                    isHeroChosen = true
+                    // chosen character goes to specific location in gameplay div
+                    heroSpot = $("<div id = '" + chosenHero.name + "'><img src = '" + chosenHero.image + "'style ='width: 150px; height: 150px'/><p> " + chosenHero.name + "</p><h6> HP</h6><p id = 'heroHP'>" + chosenHero.hp + "</p ></div > ")
+                    $("#myHero").append(heroSpot)
+                }
+                //choose an enemy AFTER one hero is chosen (hence the && chosenHero.name)
+                else if (isEnemyChosen === false && chosenHero.name != charArray[$(this).attr("value")].name) {
+                    chosenEnemy = charArray[$(this).attr("value")]
+                    console.log(chosenEnemy)
+                    $(this).addClass("fade")
+                    isEnemyChosen = true
+                    // chosen character goes to specific location in gameplay div
+                    enemySpot = $("<div id = '" + chosenEnemy.name + "'><img src = '" + chosenEnemy.image + "'style ='width: 150px; height: 150px;'/><p> " + chosenEnemy.name + "</p><h6> HP</h6><p id = 'enemyHP'>" + chosenEnemy.hp + "</p> </div > ")
+                    $("#myEnemy").append(enemySpot)
+                }
+            })
+
+            // when attack button is clicked 
+            $("#attack").on("click", function () {
+                var num1 = Math.floor(Math.random() * 100)
+                var num2 = Math.floor(Math.random() * 100)
+                chosenEnemy.hp -= num1
+                $("#enemyHP").text(chosenEnemy.hp)
+                $("#myBattle").append(chosenHero.name + " attacked" + " for " + num1 + " points! <p></p>")
+                chosenHero.hp -= num2
+                $("#heroHP").text(chosenHero.hp)
+                $("#myBattle").append(chosenEnemy.name + " attacked" + " for " + num2 + " points! <p></p>")
+                if (chosenHero.hp <= 0) {
+                    alert(chosenEnemy.name + " defeated you")
+                }
+                if (chosenEnemy.hp <= 0) {
+                    alert("You Defeated " + chosenEnemy.name + "!")
+                }
+            })
+            $("#attack").on("click", function () {
+                tie.play()
+            });
+
+
+            // create variables for the characters name, hp, strength, image
+            var charArray = [
+                {
+                    name: "Chewbaca",
+                    hp: 200,
+                    strength: 75,
+                    image: "./images/chewie.jpg"
+                },
+                {
+                    name: "Darth Vader",
+                    hp: 200,
+                    strength: 100,
+                    image: "./images/darth.png"
+                },
+                {
+                    name: "Princess Leia",
+                    hp: 200,
+                    strength: 150,
+                    image: "./images/leia.jpg"
+                },
+                {
+                    name: "Obi Wan Kenobi",
+                    hp: 200,
+                    strength: 125,
+                    image: "./images/obiwan.png"
+                },
+
+            ]
+            initgame()
+        })
+
+    </script>
+</body>
+
+</html>
