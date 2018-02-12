@@ -21,7 +21,7 @@
         </div>
         <div id="gameplay" class="row">
             <div id="myHero" class="col-md-4" style="position: absolute; top: 30%; left: 27%; color: rgb(231, 231, 168); font-family: 'Luckiest Guy';"></div>
-            <div id="myBattle" "col-md-4" style="position: absolute; top: 30%; left: 40%; color: #B47271; font-family: 'Raleway'; background-color: #C2DAEB"></div>
+            <div id="myBattle" style="position: absolute; top: 30%; left: 40%; color: rgb(231, 231, 168); font-family: 'Raleway'; "></div>
             <div id="myEnemy" class="col-md-4" style="position: absolute; top: 30%; left: 60%; color: rgb(231, 231, 168); font-family: 'Luckiest Guy';"></div>
             <button id="attack" class="btn btn-secondary" style="position: absolute; top: 20%; left: 47%; background-color: #B47271; color: black">ATTACK</button>
         </div>
@@ -29,106 +29,164 @@
     </div>
     <script src="http://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             //declare variables
-            var chosenHero
-            var chosenEnemy
-            var isHeroAlive
-            var isEnemyAlive
-
-            //audio clips 
-            let tie = new Audio("./sounds/tie.mp3")
-
-
-            //start game
-            function initgame() {
-                // since at game start we dont have a hero chosen or enemy chosen, we set them to false
-                isHeroChosen = false
-                isEnemyChosen = false
-                //generate characters 
-                for (var i = 0; i < charArray.length; i++) {
-                    var num = Math.floor(12 / charArray.length)
-                    var charThing = $("<div class ='myChar col-md-" + num + "' value='" + i + "'><img src ='" + charArray[i].image + "'style='width:150px;height:150px;'/></div>")
-                    $("#characters").append(charThing)
-                }
+            var chosenCharacter;
+            var chosenEnemy;
+            var isHeroAlive;
+            var isEnemyAlive;
+          
+            // since at game start we dont have a hero chosen or enemy chosen, we set them to false
+            var isPlayerSelected = false;
+            var isEnemySelected = false;
+          
+            //audio clips
+            let tieFighterSound = new Audio('./sounds/tie.mp3');
+          
+            function startGame() {
+              isPlayerSelected = false;
+              isEnemySelected = false;
+          
+              //generate characters
+              for (var i = 0; i < charArray.length; i++) {
+                var num = Math.floor(12 / charArray.length);
+                var charThing = $(
+                  "<div class ='myChar col-md-" +
+                    num +
+                    "' value='" +
+                    i +
+                    "'><img src ='" +
+                    charArray[i].image +
+                    "'style='width:150px;height:150px;'/></div>"
+                );
+                $('#characters').append(charThing);
+              }
             }
+          
             //choose a hero
-
-            $(document).on("click", ".myChar", function () {
-                console.log($(this).attr("value"))
-                if (isHeroChosen === false) {
-                    chosenHero = charArray[$(this).attr("value")]
-                    console.log(chosenHero)
-                    $(this).addClass("fade")
-                    isHeroChosen = true
-                    // chosen character goes to specific location in gameplay div
-                    heroSpot = $("<div id = '" + chosenHero.name + "'><img src = '" + chosenHero.image + "'style ='width: 150px; height: 150px'/><p> " + chosenHero.name + "</p><h6> HP</h6><p id = 'heroHP'>" + chosenHero.hp + "</p ></div > ")
-                    $("#myHero").append(heroSpot)
-                }
-                //choose an enemy AFTER one hero is chosen (hence the && chosenHero.name)
-                else if (isEnemyChosen === false && chosenHero.name != charArray[$(this).attr("value")].name) {
-                    chosenEnemy = charArray[$(this).attr("value")]
-                    console.log(chosenEnemy)
-                    $(this).addClass("fade")
-                    isEnemyChosen = true
-                    // chosen character goes to specific location in gameplay div
-                    enemySpot = $("<div id = '" + chosenEnemy.name + "'><img src = '" + chosenEnemy.image + "'style ='width: 150px; height: 150px;'/><p> " + chosenEnemy.name + "</p><h6> HP</h6><p id = 'enemyHP'>" + chosenEnemy.hp + "</p> </div > ")
-                    $("#myEnemy").append(enemySpot)
-                }
-            })
-
-            // when attack button is clicked 
-            $("#attack").on("click", function () {
-                var num1 = Math.floor(Math.random() * 100)
-                var num2 = Math.floor(Math.random() * 100)
-                chosenEnemy.hp -= num1
-                $("#enemyHP").text(chosenEnemy.hp)
-                $("#myBattle").append(chosenHero.name + " attacked" + " for " + num1 + " points! <p></p>")
-                chosenHero.hp -= num2
-                $("#heroHP").text(chosenHero.hp)
-                $("#myBattle").append(chosenEnemy.name + " attacked" + " for " + num2 + " points! <p></p>")
-                if (chosenHero.hp <= 0) {
-                    alert(chosenEnemy.name + " defeated you")
-                }
-                if (chosenEnemy.hp <= 0) {
-                    alert("You Defeated " + chosenEnemy.name + "!")
-                }
-            })
-            $("#attack").on("click", function () {
-                tie.play()
+            $(document).on('click', '.myChar', function() {
+              if (isPlayerSelected === false) {
+                chosenCharacter = charArray[$(this).attr('value')];
+                isPlayerSelected = true;
+                $(this).addClass('fader');
+                var characterSound = new Audio(chosenCharacter.audio);
+                characterSound.play();
+          
+                // chosen character goes to specific location in gameplay div
+                playerSpot = $(
+                  "<div id='" +
+                    chosenCharacter.name +
+                    "'><img src='" +
+                    chosenCharacter.image +
+                    "'style='width: 150px; height: 150px'/><p> " +
+                    chosenCharacter.name +
+                    "</p><h6> HP</h6><p id='heroHP'>" +
+                    chosenCharacter.hp +
+                    '</p></div> '
+                );
+          
+                $('#myHero').append(playerSpot);
+              } else if (
+                isEnemySelected === false &&
+                chosenCharacter.name != charArray[$(this).attr('value')].name &&
+                charArray[$(this).attr('value')].hp > 0
+              ) {
+                //choose an enemy AFTER one hero is chosen (hence the && chosenCharacter.name)
+                chosenEnemy = charArray[$(this).attr('value')];
+                isEnemySelected = true;
+                $('#attack').prop('disabled', false);
+                $(this).addClass('fader');
+                var enemySound = new Audio(chosenEnemy.audio);
+                enemySound.play();
+          
+                // chosen character goes to specific location in gameplay div
+                enemySpot = $(
+                  "<div id = '" +
+                    chosenEnemy.name +
+                    "'><img src='" +
+                    chosenEnemy.image +
+                    "'style='width: 150px; height: 150px;'/><p> " +
+                    chosenEnemy.name +
+                    "</p><h6> HP</h6><p id='enemyHP'>" +
+                    chosenEnemy.hp +
+                    '</p></div > '
+                );
+                $('#myEnemy').append(enemySpot);
+              }
             });
-
-
+          
+            // when attack button is clicked
+            $('#attack').on('click', function() {
+              var num1 = Math.floor(Math.random() * 50);
+              var num2 = Math.floor(Math.random() * 50);
+          
+              // play sound when attack button is clicked
+              tieFighterSound.play();
+          
+              chosenEnemy.hp -= num1;
+              $('#enemyHP').text(chosenEnemy.hp);
+              $('#myBattle').html(
+                chosenCharacter.name + ' attacked' + ' for ' + num1 + ' points! <p></p>'
+              );
+          
+              chosenCharacter.hp -= num2;
+              $('#heroHP').text(chosenCharacter.hp);
+              $('#myBattle').append(
+                chosenEnemy.name + ' attacked' + ' for ' + num2 + ' points! <p></p>'
+              );
+          
+              if (chosenCharacter.hp <= 0) {
+                $('#attack').prop('disabled', true);
+                $('#myBattle').text(chosenEnemy.name + ' defeated you');
+              }
+          
+              if (chosenEnemy.hp <= 0) {
+                $('#attack').prop('disabled', true);
+                $('#myBattle').html(
+                  'You defeated ' +
+                    chosenEnemy.name +
+                    '! <p> </p>' +
+                    'Choose your next opponent.'
+                );
+          
+                $('#myEnemy').children().remove();
+                isEnemySelected = false;
+              }
+            });
+          
             // create variables for the characters name, hp, strength, image
             var charArray = [
-                {
-                    name: "Chewbaca",
-                    hp: 200,
-                    strength: 75,
-                    image: "./images/chewie.jpg"
-                },
-                {
-                    name: "Darth Vader",
-                    hp: 200,
-                    strength: 100,
-                    image: "./images/darth.png"
-                },
-                {
-                    name: "Princess Leia",
-                    hp: 200,
-                    strength: 150,
-                    image: "./images/leia.jpg"
-                },
-                {
-                    name: "Obi Wan Kenobi",
-                    hp: 200,
-                    strength: 125,
-                    image: "./images/obiwan.png"
-                },
-
-            ]
-            initgame()
-        })
+              {
+                name: 'Chewbaca',
+                hp: 120,
+                strength: 5,
+                image: './images/chewie.jpg',
+                audio: './sounds/chewie.mp3'
+              },
+              {
+                name: 'Darth Vader',
+                hp: 150,
+                strength: 7,
+                image: './images/darth.png',
+                audio: './sounds/darthbreath.mp3'
+              },
+              {
+                name: 'Princess Leia',
+                hp: 160,
+                strength: 8,
+                image: './images/leia.jpg',
+                audio: './sounds/leiasound.mp3'
+              },
+              {
+                name: 'Obi Wan Kenobi',
+                hp: 115,
+                strength: 6,
+                image: './images/obiwan.png',
+                audio: './sounds/obisound.mp3'
+              },
+            ];
+            startGame();
+          });
 
     </script>
 </body>
